@@ -1,8 +1,8 @@
-package com.alb
+package com.alab
 
 import org.apache.spark.sql.SparkSession
 
-trait SparkSessionWrapper extends Serializable {
+trait SparkSessionTestWrapper {
 
   lazy val spark: SparkSession = {
     SparkSession.builder().master("local").appName("spark session").getOrCreate()
