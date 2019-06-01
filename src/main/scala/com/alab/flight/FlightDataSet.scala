@@ -15,8 +15,11 @@ trait FlightCSV extends FlightDS {
   }
 }
 
-object Flight extends FlightCSV {
+object FlightTest extends FlightCSV {
   def main(args: Array[String]): Unit = {
-    Flight.loadData()
+    val df: DataFrame = FlightTest.loadData()
+    df.rdd.map(row => Flight(row.getAs[String](0), row.getAs[String](1), row.getString(2).toInt)).take(3).foreach(println(_))
   }
+
+  case class Flight(from: String, des: String, total: Int)
 }
