@@ -2,7 +2,7 @@ package com.alab.flight
 
 import com.alab.SparkSessionWrapper
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, Row}
+import org.apache.spark.sql._
 
 case class Flight(from: String, des: String, total: Int)
 
@@ -38,20 +38,25 @@ trait FlightCsvDF extends FlightDF {
 trait FlightRepository
   extends FlightDF {
 
+  import RowToFlight._
   import org.apache.spark.sql.functions._
 
+  implicit val encoder: Encoder[Flight] = Encoders.kryo[Flight]
+
   lazy val df: DataFrame = loadData()
+
+  lazy val ds: Dataset[Flight] = df.map(row => row.toFlight)
 
   def count: Long = df.count()
 
   def showRows(num: Int): Unit = df.show(num)
 
-  import RowToFlight._
-
   def maxRow(): Option[Flight] = df.orderBy(desc("count")).take(1).map(row => row.toFlight) match {
     case Array(row: Flight) => Option(row)
     case _ => None
   }
+
+  def toDataset(): Dataset[Flight] = ds
 }
 
 object FlightRepository

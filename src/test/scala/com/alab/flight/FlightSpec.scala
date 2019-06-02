@@ -24,5 +24,8 @@ class FlightSpec extends WordSpec
       val maxFlight = FlightRepositoryTest.maxRow()
       println(maxFlight)
     }
+    "To dataset" in {
+      FlightRepositoryTest.toDataset().filter(flight => flight.total == 20).show(10)
+    }
   }
 }
