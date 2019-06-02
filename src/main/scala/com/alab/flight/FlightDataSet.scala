@@ -31,6 +31,15 @@ object FlightTest extends FlightCSV {
     val df: DataFrame = FlightTest.loadData()
     df.sort("count").show(30)
 
+    df.createOrReplaceTempView("flight_data_2015")
+    val sqlWay = spark.sql(
+      """
+        |SELECT DEST_COUNTRY_NAME, ORIGIN_COUNTRY_NAME
+        |FROM flight_data_2015
+        |ORDER BY count DESC
+      """.stripMargin)
+    sqlWay.show(20)
+    sqlWay.explain()
     import FlightRDD._
     val totalFlight = df.toRDD.map(f => f.total).fold(0)((f1, f2) => f1 + f2)
     println(totalFlight)
