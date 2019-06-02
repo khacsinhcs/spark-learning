@@ -3,9 +3,9 @@ package com.alab.flight
 import com.alab.SparkSessionTestWrapper
 import com.github.mrpowers.spark.fast.tests.DataFrameComparer
 import org.apache.spark.sql.DataFrame
-import org.scalatest.FunSpec
+import org.scalatest.WordSpec
 
-class FlightSpec extends FunSpec
+class FlightSpec extends WordSpec
   with SparkSessionTestWrapper
   with DataFrameComparer {
 
@@ -15,7 +15,14 @@ class FlightSpec extends FunSpec
       .csv("data/flight-data/csv/2015-summary.csv")
   }
 
-  object FlightRepositoryTest extends FlightRepository with FlightDFTest
+  object FlightRepositoryTest
+    extends FlightRepository
+      with FlightDFTest
 
-
+  "Flight repository" should {
+    "Find max row" in {
+      val maxFlight = FlightRepositoryTest.maxRow()
+      println(maxFlight)
+    }
+  }
 }

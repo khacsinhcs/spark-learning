@@ -2,9 +2,17 @@ package com.alab.flight
 
 import com.alab.SparkSessionWrapper
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, Row}
 
 case class Flight(from: String, des: String, total: Int)
+
+object RowToFlight {
+
+  implicit class ToFlight(row: Row) {
+    def toFlight: Flight = Flight(row.getString(0), row.getString(1), row.getString(2).toInt)
+  }
+
+}
 
 trait FlightDF extends SparkSessionWrapper {
   def loadData(): DataFrame
@@ -13,7 +21,10 @@ trait FlightDF extends SparkSessionWrapper {
 object FlightRDD {
 
   implicit class ToRDD(df: DataFrame) {
-    def toRDD: RDD[Flight] = df.rdd.map(row => Flight(row.getString(0), row.getString(1), row.getString(2).toInt))
+
+    import RowToFlight._
+
+    def toRDD: RDD[Flight] = df.rdd.map(row => row.toFlight)
   }
 
 }
@@ -24,11 +35,28 @@ trait FlightCsvDF extends FlightDF {
     .csv("data/flight-data/csv/*")
 }
 
-trait FlightRepository extends FlightDF {
+trait FlightRepository
+  extends FlightDF {
 
+  import org.apache.spark.sql.functions._
+
+  lazy val df: DataFrame = loadData()
+
+  def count: Long = df.count()
+
+  def showRows(num: Int): Unit = df.show(num)
+
+  import RowToFlight._
+
+  def maxRow(): Option[Flight] = df.orderBy(desc("count")).take(1).map(row => row.toFlight) match {
+    case Array(row: Flight) => Option(row)
+    case _ => None
+  }
 }
 
-object FlightRepository extends FlightRepository with FlightCsvDF {
+object FlightRepository
+  extends FlightRepository
+    with FlightCsvDF {
 
 }
 
