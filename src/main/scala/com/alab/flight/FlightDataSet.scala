@@ -6,26 +6,34 @@ import org.apache.spark.sql.DataFrame
 
 case class Flight(from: String, des: String, total: Int)
 
-trait FlightDS extends SparkSessionWrapper {
+trait FlightDF extends SparkSessionWrapper {
   def loadData(): DataFrame
 }
 
 object FlightRDD {
+
   implicit class ToRDD(df: DataFrame) {
     def toRDD: RDD[Flight] = df.rdd.map(row => Flight(row.getString(0), row.getString(1), row.getString(2).toInt))
   }
+
 }
 
-trait FlightCSV extends FlightDS {
-  def loadData(): DataFrame = {
-    spark.read.option("inferScheme", "true")
-      .option("header", "true")
-      .csv("data/flight-data/csv/*")
-  }
+trait FlightCsvDF extends FlightDF {
+  def loadData(): DataFrame = spark.read.option("inferScheme", "true")
+    .option("header", "true")
+    .csv("data/flight-data/csv/*")
+}
+
+trait FlightRepository extends FlightDF {
+
+}
+
+object FlightRepository extends FlightRepository with FlightCsvDF {
+
 }
 
 
-object FlightTest extends FlightCSV {
+object FlightTest extends FlightCsvDF {
   def main(args: Array[String]): Unit = {
     val df: DataFrame = FlightTest.loadData()
     df.sort("count").show(30)
