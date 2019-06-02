@@ -51,19 +51,13 @@ trait FlightRepository
 
   def showRows(num: Int): Unit = df.show(num)
 
-  def maxRow(): Option[Flight] = df.orderBy(desc("count")).take(1).map(row => row.toFlight) match {
+  def maxFight(): Option[Flight] = df.orderBy(desc("count")).take(1).map(row => row.toFlight) match {
     case Array(row: Flight) => Option(row)
     case _ => None
   }
-
-  def toDataset(): Dataset[Flight] = ds
 }
 
-object FlightRepository
-  extends FlightRepository
-    with FlightCsvDF {
-
-}
+object FlightRepository extends FlightRepository with FlightCsvDF
 
 
 object FlightTest extends FlightCsvDF {

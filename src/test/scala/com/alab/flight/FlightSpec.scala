@@ -3,9 +3,10 @@ package com.alab.flight
 import com.alab.SparkSessionTestWrapper
 import com.github.mrpowers.spark.fast.tests.DataFrameComparer
 import org.apache.spark.sql.DataFrame
-import org.scalatest.WordSpec
+import org.scalatest.{Matchers, WordSpec}
 
 class FlightSpec extends WordSpec
+  with Matchers
   with SparkSessionTestWrapper
   with DataFrameComparer {
 
@@ -21,13 +22,12 @@ class FlightSpec extends WordSpec
 
   "Flight repository" should {
     "Find max row" in {
-      val maxFlight = FlightRepositoryTest.maxRow()
+      FlightRepositoryTest.maxFight()
       FlightRepositoryTest.df.printSchema()
-      println(maxFlight)
     }
     "To dataset" in {
-      FlightRepositoryTest.toDataset().filter(flight => flight.total == 20).show(10)
-      FlightRepositoryTest.toDataset().printSchema()
+      FlightRepositoryTest.ds.filter(flight => flight.total == 20).show(10)
+      FlightRepositoryTest.ds.printSchema()
     }
   }
 }
