@@ -40,6 +40,11 @@ object FlightTest extends FlightCSV {
       """.stripMargin)
     sqlWay.show(20)
     sqlWay.explain()
+
+    df.select("DEST_COUNTRY_NAME", "ORIGIN_COUNTRY_NAME")
+      .orderBy("count")
+      .show(30)
+
     import FlightRDD._
     val totalFlight = df.toRDD.map(f => f.total).fold(0)((f1, f2) => f1 + f2)
     println(totalFlight)
