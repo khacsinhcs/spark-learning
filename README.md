@@ -1,15 +1,3 @@
-# spark-learning
+# Learning [Apache Spark](https://spark.apache.org/)
 
-*add project short description*
-
-## Accessing the library
-
-*How to access the code*
-
-## Documentation
-
-*A link to the documentation*
-
-## How to contribute
-
-*How others can contribute to the project*
+This project is personal learning resource. All source code and data was copied from [Spark-The-Definitive-Guide](https://github.com/databricks/Spark-The-Definitive-Guide).
