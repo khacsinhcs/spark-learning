@@ -22,10 +22,12 @@ class FlightSpec extends WordSpec
   "Flight repository" should {
     "Find max row" in {
       val maxFlight = FlightRepositoryTest.maxRow()
+      FlightRepositoryTest.df.printSchema()
       println(maxFlight)
     }
     "To dataset" in {
       FlightRepositoryTest.toDataset().filter(flight => flight.total == 20).show(10)
+      FlightRepositoryTest.toDataset().printSchema()
     }
   }
 }
