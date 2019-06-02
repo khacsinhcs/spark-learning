@@ -78,9 +78,8 @@ object FlightTest extends FlightCsvDF {
     df.select("DEST_COUNTRY_NAME", "ORIGIN_COUNTRY_NAME")
       .orderBy("count")
       .show(30)
-    import org.apache.spark.sql.functions._
-    df.select(max("count")).show(1)
     import FlightRDD._
+
     val totalFlight = df.toRDD.map(f => f.total).fold(0)((f1, f2) => f1 + f2)
     println(totalFlight)
   }

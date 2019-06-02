@@ -22,7 +22,8 @@ class FlightSpec extends WordSpec
 
   "Flight repository" should {
     "Find max row" in {
-      FlightRepositoryTest.maxFight()
+      FlightRepositoryTest.maxFight() should not be None
+      FlightRepositoryTest.df.isStreaming should be(false)
       FlightRepositoryTest.df.printSchema()
     }
     "To dataset" in {
