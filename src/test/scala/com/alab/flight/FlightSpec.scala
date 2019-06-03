@@ -11,7 +11,8 @@ class FlightSpec extends WordSpec
   with DataFrameComparer {
 
   trait FlightDFTest extends FlightDF {
-    override def loadData(): DataFrame = spark.read.option("inferScheme", "true")
+
+    override def loadDataFrame(): DataFrame = spark.read.option("inferScheme", "true")
       .option("header", "true")
       .csv("data/flight-data/csv/2015-summary.csv")
   }
