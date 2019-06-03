@@ -5,7 +5,7 @@ import org.apache.spark.sql.{DataFrame, Dataset, Encoder}
 
 import scala.reflect.ClassTag
 
-object DataFrameSyntax {
+object DataFrameSyntax extends Serializable {
 
   implicit class RDDOps(dataFrame: DataFrame) {
     def toRDD[T]()(implicit rowMaterialize: RowMaterialize[T], classTag: ClassTag[T]): RDD[T] = dataFrame.rdd.map(row => rowMaterialize.materialize(row))

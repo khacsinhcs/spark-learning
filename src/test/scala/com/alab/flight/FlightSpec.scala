@@ -11,8 +11,11 @@ class FlightSpec extends WordSpec
   with SparkSessionTestWrapper
   with DataFrameComparer {
 
-  trait FlightDFTest extends FlightDF {
+  import FlightMaterialize._
+  import com.alab.DataFrameSyntax._
 
+
+  trait FlightDFTest extends FlightDF {
     override def loadDataFrame(): DataFrame = spark.read.option("inferScheme", "true")
       .option("header", "true")
       .csv("data/flight-data/csv/2015-summary.csv")
@@ -23,20 +26,25 @@ class FlightSpec extends WordSpec
       with FlightDFTest
 
   "Flight repository" should {
+
     "Find max row" in {
       FlightRepositoryTest.maxFight() should not be None
       FlightRepositoryTest.df.isStreaming should be(false)
       FlightRepositoryTest.df.printSchema()
     }
+
     "To dataset" in {
       FlightRepositoryTest.ds.filter(flight => flight.total == 20).show(10)
       FlightRepositoryTest.ds.printSchema()
     }
+
+    "to RDD[Flight]" in {
+      val rdd: RDD[Flight] = FlightRepositoryTest.df.toRDD()
+      rdd.count() should be(FlightRepositoryTest.df.count())
+    }
   }
 
   "Exploring api" should {
-    import FlightMaterialize._
-    import com.alab.DataFrameSyntax._
 
     val df: DataFrame = FlightTest.df
 

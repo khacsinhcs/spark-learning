@@ -2,7 +2,7 @@ package com.alab
 
 import org.apache.spark.sql.Row
 
-trait RowMaterialize[T] {
+trait RowMaterialize[T] extends Serializable {
   def materialize(row: Row): T
 }
 
