@@ -1,6 +1,6 @@
 package com.alab.flight
 
-import com.alab.df.{DataFrameLoader, RowMaterialize}
+import com.alab.{DataFrameLoader, RowMaterialize}
 import org.apache.spark.sql._
 
 case class Flight(from: String, des: String, total: Int)
@@ -23,14 +23,13 @@ trait FlightRepository
   extends FlightDF {
 
   import RowToFight._
+  import com.alab.MaterializeOps._
   import com.alab.df.DataSetOps._
-  import com.alab.df.MaterializeOps._
   import org.apache.spark.sql.functions._
 
 
   implicit val encoder: Encoder[Flight] = Encoders.kryo[Flight]
 
-  lazy val df: DataFrame = loadDataFrame()
 
   lazy val ds: Dataset[Flight] = df.toDs()
   def count: Long = df.count()

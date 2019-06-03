@@ -1,27 +1,11 @@
 package com.alab
 
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, Dataset, Encoder, Row}
+import org.apache.spark.sql.{DataFrame, Dataset, Encoder}
 
 import scala.reflect.ClassTag
 
 object df {
-
-  trait DataFrameLoader extends SparkSessionWrapper {
-    def loadDataFrame(): DataFrame
-  }
-
-  trait RowMaterialize[T] {
-    def materialize(row: Row): T
-  }
-
-  object MaterializeOps {
-
-    implicit class MaterializeSyntax(row: Row) {
-      def materialize[T]()(implicit rowMaterialize: RowMaterialize[T]): T = rowMaterialize.materialize(row)
-    }
-
-  }
 
   object RDDOps {
 
