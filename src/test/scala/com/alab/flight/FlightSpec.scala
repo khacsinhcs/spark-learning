@@ -46,7 +46,7 @@ class FlightSpec extends WordSpec
 
   "Exploring api" should {
 
-    val df: DataFrame = FlightTest.df
+    val df: DataFrame = FlightRepositoryTest.df
 
     "sort dataframe by count" in {
       df.sort("count").show(30)
