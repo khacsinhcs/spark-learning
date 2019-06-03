@@ -14,69 +14,85 @@ class FlightSpec extends WordSpec
   import FlightMaterialize._
   import com.alab.DataFrameSyntax._
 
+  "Fight with csv data source" should {
+    trait FlightCsvDF extends FlightDF {
+      override def loadDataFrame(): DataFrame = spark.read.option("inferScheme", "true")
+        .option("header", "true")
+        .csv("data/flight-data/csv/2015-summary.csv")
+    }
 
-  trait FlightDFTest extends FlightDF {
-    override def loadDataFrame(): DataFrame = spark.read.option("inferScheme", "true")
-      .option("header", "true")
-      .csv("data/flight-data/csv/2015-summary.csv")
+    object FlightRepositoryTest extends FlightRepository with FlightCsvDF
+
+    "Flight repository" should {
+
+      "Find max row" in {
+        FlightRepositoryTest.maxFight() should not be None
+        FlightRepositoryTest.df.isStreaming should be(false)
+        FlightRepositoryTest.df.printSchema()
+      }
+
+      "To dataset" in {
+        FlightRepositoryTest.ds.filter(flight => flight.total == 20).show(10)
+        FlightRepositoryTest.ds.printSchema()
+      }
+
+      "to RDD[Flight]" in {
+        val rdd: RDD[Flight] = FlightRepositoryTest.df.toRDD()
+        rdd.count() should be(FlightRepositoryTest.df.count())
+      }
+    }
+
+    "Exploring api" should {
+
+      val df: DataFrame = FlightRepositoryTest.df
+
+      "sort dataframe by count" in {
+        df.sort("count").show(30)
+      }
+
+      "project columns and sort by count by sql" in {
+        df.createOrReplaceTempView("flight_data_2015")
+        val sqlWay = spark.sql(
+          """
+            |SELECT DEST_COUNTRY_NAME, ORIGIN_COUNTRY_NAME
+            |FROM flight_data_2015
+            |ORDER BY count DESC
+          """.stripMargin)
+        sqlWay.show(20)
+        sqlWay.explain()
+      }
+
+      "project columns and sort by count by code" in {
+        val codeWay = df
+          .select("DEST_COUNTRY_NAME", "ORIGIN_COUNTRY_NAME")
+          .orderBy("count")
+        codeWay.show(20)
+        codeWay.explain()
+      }
+
+      "sum all total flight by RDD" in {
+        val rdd: RDD[Flight] = df.toRDD()
+        val totalFlight = rdd.map(f => f.total).fold(0)(_ + _)
+        println(totalFlight)
+      }
+    }
   }
 
-  object FlightRepositoryTest
-    extends FlightRepository
-      with FlightDFTest
+  "Fight with json data source" should {
+    trait FlightJsonDF extends FlightDF {
+      override def loadDataFrame(): DataFrame = spark.read.format("json").load("data/flight-data/json/2015-summary.json")
+    }
 
-  "Flight repository" should {
+    object FlightRepositoryTest extends FlightRepository with FlightJsonDF
 
-    "Find max row" in {
-      FlightRepositoryTest.maxFight() should not be None
-      FlightRepositoryTest.df.isStreaming should be(false)
+    "Json DataFrame should have schema" in {
       FlightRepositoryTest.df.printSchema()
-    }
-
-    "To dataset" in {
-      FlightRepositoryTest.ds.filter(flight => flight.total == 20).show(10)
-      FlightRepositoryTest.ds.printSchema()
-    }
-
-    "to RDD[Flight]" in {
-      val rdd: RDD[Flight] = FlightRepositoryTest.df.toRDD()
-      rdd.count() should be(FlightRepositoryTest.df.count())
+      val schema = FlightRepositoryTest.df.schema
+      schema.head.name should be("DEST_COUNTRY_NAME")
+      val columnsName = schema.map(f => f.name)
+      columnsName should contain allOf("DEST_COUNTRY_NAME", "ORIGIN_COUNTRY_NAME", "count")
     }
   }
 
-  "Exploring api" should {
 
-    val df: DataFrame = FlightRepositoryTest.df
-
-    "sort dataframe by count" in {
-      df.sort("count").show(30)
-    }
-
-    "project columns and sort by count by sql" in {
-      df.createOrReplaceTempView("flight_data_2015")
-      val sqlWay = spark.sql(
-        """
-          |SELECT DEST_COUNTRY_NAME, ORIGIN_COUNTRY_NAME
-          |FROM flight_data_2015
-          |ORDER BY count DESC
-        """.stripMargin)
-      sqlWay.show(20)
-      sqlWay.explain()
-    }
-
-    "project columns and sort by count by code" in {
-      val codeWay = df
-        .select("DEST_COUNTRY_NAME", "ORIGIN_COUNTRY_NAME")
-        .orderBy("count")
-      codeWay.show(20)
-      codeWay.explain()
-    }
-
-    "sum all total flight by RDD" in {
-      val rdd: RDD[Flight] = df.toRDD()
-      val totalFlight = rdd.map(f => f.total).fold(0)(_ + _)
-      println(totalFlight)
-    }
-
-  }
 }
