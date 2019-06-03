@@ -23,8 +23,8 @@ trait FlightRepository
   extends FlightDF {
 
   import RowToFight._
+  import com.alab.DataFrameSyntax._
   import com.alab.MaterializeOps._
-  import com.alab.df.DataSetOps._
   import org.apache.spark.sql.functions._
 
 
@@ -65,7 +65,7 @@ object FlightTest extends FlightCsvDF {
       .show(30)
 
     import RowToFight._
-    import com.alab.df.RDDOps._
+    import com.alab.DataFrameSyntax._
     val totalFlight = df.toRDD.map(f => f.total).fold(0)((f1, f2) => f1 + f2)
     println(totalFlight)
   }
