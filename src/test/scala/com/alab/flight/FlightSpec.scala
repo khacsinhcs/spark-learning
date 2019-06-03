@@ -55,6 +55,7 @@ class FlightSpec extends WordSpec
       sqlWay.show(20)
       sqlWay.explain()
     }
+
     "project columns and sort by count by code" in {
       val codeWay = df
         .select("DEST_COUNTRY_NAME", "ORIGIN_COUNTRY_NAME")
