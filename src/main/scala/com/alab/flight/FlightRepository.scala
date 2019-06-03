@@ -43,11 +43,3 @@ trait FlightRepository
 }
 
 object FlightRepository extends FlightRepository with FlightCsvDF
-
-
-object FlightTest extends FlightCsvDF {
-  def main(args: Array[String]): Unit = {
-
-  }
-
-}
