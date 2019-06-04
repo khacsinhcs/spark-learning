@@ -24,6 +24,7 @@ class RetailSpec extends WordSpec
 
   "Show schema" in {
     RetailRepository.showSchema()
+    df.columns should contain("Country", "UnitPrice")
   }
 
   "material row to Retail" in {
