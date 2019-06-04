@@ -4,6 +4,7 @@ import com.alab.SparkSessionTestWrapper
 import com.github.mrpowers.spark.fast.tests.DataFrameComparer
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.functions._
 import org.scalatest.{Matchers, WordSpec}
 
 class FlightSpec extends WordSpec
@@ -91,6 +92,17 @@ class FlightSpec extends WordSpec
       schema.head.name should be("DEST_COUNTRY_NAME")
       val columnsName = schema.map(f => f.name)
       columnsName should contain allOf("DEST_COUNTRY_NAME", "ORIGIN_COUNTRY_NAME", "count")
+    }
+
+    "exploring expression" in {
+      val select1 = FlightRepositoryTest.df.select(expr("DEST_COUNTRY_NAME"), expr("ORIGIN_COUNTRY_NAME"))
+      val select2 = FlightRepositoryTest.df.select(col("DEST_COUNTRY_NAME"), col("ORIGIN_COUNTRY_NAME"))
+      val select3 = FlightRepositoryTest.df.select("DEST_COUNTRY_NAME", "ORIGIN_COUNTRY_NAME")
+
+      assertSmallDataFrameEquality(select1, select2)
+      assertSmallDataFrameEquality(select2, select3)
+
+      FlightRepositoryTest.df.selectExpr("DEST_COUNTRY_NAME as dest", "ORIGIN_COUNTRY_NAME as origin").printSchema()
     }
   }
 
