@@ -4,7 +4,7 @@ import java.util.Date
 
 import com.alab.RowMaterialize
 import com.alab.retail.data._
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.{Encoder, Encoders, Row}
 
 case class Retail(invoiceNo: String,
                   stockCode: String,
@@ -31,5 +31,7 @@ object RetailMaterialize {
 }
 
 trait RetailRepository extends RetailDataLoader {
+  implicit val encoder: Encoder[Retail] = Encoders.kryo[Retail]
+
   def showSchema(): Unit = df.printSchema()
 }

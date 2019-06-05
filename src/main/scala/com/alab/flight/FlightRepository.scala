@@ -1,11 +1,13 @@
 package com.alab.flight
 
+import com.alab.SparkSessionProvider._
 import com.alab.{DataFrameLoader, RowMaterialize}
 import org.apache.spark.sql._
 
 case class Flight(from: String, des: String, total: Int) extends Serializable
 
-trait FlightDF extends DataFrameLoader
+trait FlightDF extends DataFrameLoader {
+}
 
 object FlightMaterialize {
   implicit val flightMaterial: RowMaterialize[Flight] = new RowMaterialize[Flight] {
@@ -14,7 +16,11 @@ object FlightMaterialize {
 }
 
 trait FlightCsvDF extends FlightDF {
-  override def loadDataFrame(): DataFrame = spark.read.option("inferScheme", "true")
+  private lazy val _df = loadDataFrame()
+
+  override def df: DataFrame = _df
+
+  override def loadDataFrame()(implicit sparkSession: SparkSession): DataFrame = spark.read.option("inferScheme", "true")
     .option("header", "true")
     .csv("data/flight-data/csv/*")
 }
@@ -32,6 +38,7 @@ trait FlightRepository
 
 
   lazy val ds: Dataset[Flight] = df.toDs()
+
   def count: Long = df.count()
 
   def showRows(num: Int): Unit = df.show(num)
