@@ -1,23 +1,30 @@
 package com.alab.flight
 
-import com.alab.SparkSessionTestWrapper
+import com.alab.SparkSessionDataProviderTest
 import com.github.mrpowers.spark.fast.tests.DataFrameComparer
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.scalatest.{Matchers, WordSpec}
 
 class FlightSpec extends WordSpec
   with Matchers
-  with SparkSessionTestWrapper
   with DataFrameComparer {
 
   import FlightMaterialize._
   import com.alab.DataFrameSyntax._
 
+  implicit lazy val spark: SparkSession = SparkSessionDataProviderTest.spark
+
+  trait FlightDFTest extends FlightDF {
+    private lazy val _df = loadDataFrame()
+
+    override def df: DataFrame = _df
+  }
+
   "Fight with csv data source" should {
-    trait FlightCsvDF extends FlightDF {
-      override def loadDataFrame(): DataFrame = spark.read.option("inferScheme", "true")
+    trait FlightCsvDF extends FlightDFTest {
+      override def loadDataFrame()(implicit spark: SparkSession): DataFrame = spark.read.option("inferScheme", "true")
         .option("header", "true")
         .csv("data/flight-data/csv/2015-summary.csv")
     }
@@ -80,8 +87,8 @@ class FlightSpec extends WordSpec
   }
 
   "Fight with json data source" should {
-    trait FlightJsonDF extends FlightDF {
-      override def loadDataFrame(): DataFrame = spark.read.format("json").load("data/flight-data/json/2015-summary.json")
+    trait FlightJsonDF extends FlightDFTest {
+      override def loadDataFrame()(implicit spark: SparkSession): DataFrame = spark.read.format("json").load("data/flight-data/json/2015-summary.json")
     }
 
     object FlightRepositoryTest extends FlightRepository with FlightJsonDF
