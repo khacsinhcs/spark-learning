@@ -48,9 +48,14 @@ class RetailSpec extends WordSpec
   }
 
   "show description of invoice" in {
-    val descriptions = RetailRepository descriptionOfInvoice (536365)
+    val descriptions = RetailRepository descriptionOfInvoice 536365
     println(descriptions.mkString(", "))
     descriptions should have size 7
+  }
+
+  "take expensive retail" in {
+    val retails = RetailRepository selectExpenseRetail()
+    println(retails.mkString(", "))
   }
 
 }

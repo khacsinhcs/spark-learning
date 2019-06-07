@@ -35,6 +35,7 @@ trait RetailRepository extends RetailDataLoader {
   import RetailMaterialize._
   import com.alab.MaterializeOps._
   import org.apache.spark.sql.functions._
+
   implicit val encoder: Encoder[Retail] = Encoders.kryo[Retail]
 
   def showSchema(): Unit = df.printSchema()
@@ -43,4 +44,8 @@ trait RetailRepository extends RetailDataLoader {
 
   def descriptionOfInvoice(invoiceNo: Int, limit: Int): Array[String] = df.where(col("InvoiceNo") === invoiceNo).map(row => row.materialize()).take(limit).map(retail => retail.description)
 
+  def selectExpenseRetail(): Array[Retail] = df
+    .withColumn("isExpensive", not(col("UnitPrice") < 250))
+    .filter("isExpensive")
+    .take(200).map(row => row.materialize())
 }
